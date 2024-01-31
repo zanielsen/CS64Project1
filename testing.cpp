@@ -55,6 +55,55 @@ void sub(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
     rd = rs - rt;
 }
 
+void addu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
+    rd = rs + rt;
+}
+
+void andCom(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rs & rt;
+}
+
+void orCom(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rs | rt;
+}
+
+void nor(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = !(rs | rt);
+}
+
+void sll(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rt << shamt;
+}
+
+void srl(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rt >> shamt;
+}
+
+void subu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
+    rd = rs - rt;
+}
+
+void addiu(uint32_t& rt, uint32_t rs, uint16_t imm) {
+    uint32_t immPadded = 
+    rt = rs + imm;
+}
+
+void sra(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    
+}
+
+void lui(int32_t& rt, int32_t rs, int16_t imm) {
+    rt = imm << 16;
+}
+
+void andi(int32_t& rt, int32_t rs, int16_t imm) {
+    // rt = rs & ;
+}
+
+void ori(int32_t& rt, int32_t rs, int16_t imm) {
+    // rt = rs & ;
+}
+
 
 int main() {
     queue<Type> commands;
@@ -65,8 +114,8 @@ int main() {
     map<int32_t, rfunctions> rInstructions {
         {32, &add},
         {33, &addu},
-        {36, &and},
-        {37, &or},
+        {36, &andCom},
+        {37, &orCom},
         {39, &nor},
         {0, &sll},
         {3, &sra},
