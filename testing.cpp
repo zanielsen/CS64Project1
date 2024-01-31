@@ -9,14 +9,25 @@ using namespace std;
 
 struct Type { 
     int op_code;
+    void print() {
+        cout << op_code << endl;
+    }
 
     struct R {
         int32_t rs, rt, rd, shamt, func;
+
+        void print() {
+            cout << rs << " " << rt << " " << rd << " " << shamt << " " <<  func << endl;
+        }
     }; 
 
     struct I {
         int32_t rs, rt;
         int16_t imm;
+
+        void print() {
+            cout << rs << " " << rt << " " << imm << endl;
+        }
     };
     
     struct I i;
@@ -25,11 +36,12 @@ struct Type {
 
 Type buildR(int32_t& input) {
     struct Type fin;
-    fin.r.rs = input & 65011712 >> 21;
-    fin.r.rt = input & 2031616 >> 16;
-    fin.r.rd = input & 63488 >> 11;
-    fin.r.shamt = input & 1984 >> 6;
-    fin.r.func = input & 63;
+    fin.r.rs = (input >> 21) & 31;
+    fin.r.rt = (input >> 16) & 31;
+    fin.r.rd = (input >> 11) & 31;
+    fin.r.shamt = (input >> 6) & 31;
+    fin.r.func = input & 63; // reads correctly
+    return fin;
 }
 
 Type buildI(int32_t& input) {
@@ -37,6 +49,7 @@ Type buildI(int32_t& input) {
     fin.i.rs = input & 65011712 >> 21;
     fin.i.rt = input & 2031616 >> 16;
     fin.i.imm = input & 65535;
+    return fin;
 }
 
 void add(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
@@ -111,35 +124,36 @@ int main() {
     typedef void (*rfunctions)(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt);
     typedef void (*ifunctions)(int32_t& rt, int32_t rs, int16_t imm);
 
-    map<int32_t, rfunctions> rInstructions {
-        {32, &add},
-        {33, &addu},
-        {36, &andCom},
-        {37, &orCom},
-        {39, &nor},
-        {0, &sll},
-        {3, &sra},
-        {2, &srl},
-        {34, &sub},
-        {35, &subu}
-    };
+    map<int32_t, rfunctions> rInstructions; 
+    rInstructions[32] = &add;
+    rInstructions[36] = &andCom;
+    rInstructions[37] = &orCom;
+    rInstructions[39] = &nor;
+    rInstructions[0] = &sll;
+    rInstructions[3] = &sra;
+    rInstructions[2] = &srl;
+    rInstructions[34] = &sub;
 
-    map<int32_t, ifunctions> iInstructions {
-        {8, &addi},
-        {9, &addiu},
-        {15, &lui},
-        {12, &andi},
-        {13, &ori}
-    };
+    map<int32_t, ifunctions> iInstructions;
+    iInstructions[8] = &addi;
+    iInstructions[8] = &addiu;
+    iInstructions[8] = &lui;
+    iInstructions[8] = &andi;
+    iInstructions[8] = &ori;
     
     int32_t registers[26];
 
-    while (getline(cin, temp)) {
-        if (!(temp == "done")) {
+    // while (getline(cin, temp)) {
+        // if (!(temp == "done")) {
+            registers[0] = 0;
+            registers[1] = 1;
+            registers[2] = 2;
+            registers[3] = 3;
+            temp = "221820";
             int32_t num;
             istringstream(temp) >> hex >> num;
             struct Type tempCommand;
-            if ((num & 4227858432) == 0) {
+            if ((num & 4227858432) == 0) { // checks op code correctly if r type
                 tempCommand.op_code = 0;
                 tempCommand = buildR(num);
             } else {
@@ -147,18 +161,20 @@ int main() {
                 tempCommand = buildI(num);
             }
             commands.push(tempCommand);
-        }   
-    }
+        // }   
+    // }
 
     while (!commands.empty()) {
         struct Type tempCom = commands.front();
         commands.pop();
         if (tempCom.op_code == 0) {
-            rInstructions[tempCom.r.func](tempCom.r.rd, tempCom.r.rs, tempCom.r.rt, tempCom.r.shamt);
+            rInstructions[tempCom.r.func](registers[tempCom.r.rs], registers[tempCom.r.rt], registers[tempCom.r.rd], tempCom.r.shamt);
         } else {
-            iInstructions[tempCom.op_code](tempCom.i.rt, tempCom.i.rs, tempCom.i.imm);
+            iInstructions[tempCom.op_code](registers[tempCom.i.rt], registers[tempCom.i.rs], tempCom.i.imm);
         }
     }
+    // current status: works with hex code "221820"
+    cout << registers[1] << endl;
 
     return 0;
 }
