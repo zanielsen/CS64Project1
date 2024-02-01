@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "ostream": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "ios": "cpp",
+        "iostream": "cpp"
     }
 }
