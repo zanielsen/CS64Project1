@@ -1,0 +1,12 @@
+#addi
+0x20200003 # load register 1 with val 3
+0x20400002 # load register 2 with val 2
+0x20600001 # load register 3 with val 1
+
+#add
+
+0x00222020 # load register 4 with register 1 + register 2
+0x00612820 # load register 5 with register 3 + register 1
+
+
+
