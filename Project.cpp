@@ -90,7 +90,7 @@ int main() {
             } else {
                 tempCommand = buildI(num);
             }
-            commands.push(tempCommand);
+            commands.push(temp                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Command);
         }   
     }
 
@@ -99,4 +99,49 @@ int main() {
     }
 
     return 0;
+}
+
+void addu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
+    rd = rs + rt;
+}
+
+void and(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rs & rt;
+}
+
+void or(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rs | rt;
+}
+
+void nor(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = !(rs | rt);
+}
+
+void sll(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rt << shamt;
+}
+
+void srl(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    rd = rt >> shamt;
+}
+
+void subu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
+    rd = rs - rt;
+}
+
+void addiu(uint32_t& rt, uint32_t rs, uint16_t imm) {
+    uint32_t immPadded = 
+    rt = rs + imm;
+}
+
+void lui(int32_t& rt, int32_t rs, int16_t imm) {
+    rt = imm << 16;
+}
+
+void andi(int32_t& rt, int32_t rs, int16_t imm) {
+    // rt = rs & ;
+}
+
+void ori(int32_t& rt, int32_t rs, int16_t imm) {
+    // rt = rs & ;
 }

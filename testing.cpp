@@ -3,7 +3,8 @@
 #include <queue>
 #include <sstream>
 #include <map>
-
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -98,7 +99,7 @@ void subu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
 }
 
 void addiu(uint32_t& rt, uint32_t rs, uint16_t imm) {
-    uint32_t immPadded = 
+    // uint32_t immPadded = 
     rt = rs + imm;
 }
 
@@ -145,23 +146,42 @@ int main() {
     int32_t registers[26];
     registers[0] = 0;
 
-    // while (getline(cin, temp)) {
-        // if (!(temp == "done")) {
-            // temp = temp.substr(2);
+    string line;
+    int32_t num;
+    ifstream instructionsFile("instructions.txt");
 
-            int32_t num;
-            istringstream(temp) >> hex >> num;
+    if (instructionsFile.is_open()) {
+        while (getline(instructionsFile, line)) {
+            cout << "Instruction: " << line << '\n';
+
+            line = line.substr(2, 8);
+
+            istringstream(line) >> hex >> num;
+
+            cout << "Line: " << line << ", Number: " << num << '\n';
+
             struct Type tempCommand;
-            if ((num & 4227858432) == 0) { // checks op code correctly if r type
+
+            // R Type
+            if ((num & 4227858432) == 0) {
                 tempCommand.op_code = 0;
                 tempCommand = buildR(num);
-            } else {
-                tempCommand.op_code = ((num >> 26) & 63);
+            } 
+            
+            // I Type
+            else {
+                tempCommand.op_code = (num & 4227858432);
                 tempCommand = buildI(num);
             }
+
             commands.push(tempCommand);
-        // }   
-    // }
+        }
+
+        instructionsFile.close();
+    }
+
+    else 
+        cout << "Unable to open file." << endl;
 
     while (!commands.empty()) {
         struct Type tempCom = commands.front();
