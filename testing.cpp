@@ -46,8 +46,9 @@ Type buildR(int32_t& input) {
 
 Type buildI(int32_t& input) {
     struct Type fin;
-    fin.i.rs = input & 65011712 >> 21;
-    fin.i.rt = input & 2031616 >> 16;
+    fin.op_code = ((input >> 26) & 63);
+    fin.i.rs = (input >> 21) & 31;
+    fin.i.rt = (input >> 16) & 31;
     fin.i.imm = input & 65535;
     return fin;
 }
@@ -136,20 +137,18 @@ int main() {
 
     map<int32_t, ifunctions> iInstructions;
     iInstructions[8] = &addi;
-    iInstructions[8] = &addiu;
-    iInstructions[8] = &lui;
-    iInstructions[8] = &andi;
-    iInstructions[8] = &ori;
+    iInstructions[9] = &addiu;
+    iInstructions[15] = &lui;
+    iInstructions[12] = &andi;
+    iInstructions[13] = &ori;
     
     int32_t registers[26];
+    registers[0] = 0;
 
     // while (getline(cin, temp)) {
         // if (!(temp == "done")) {
-            registers[0] = 0;
-            registers[1] = 1;
-            registers[2] = 2;
-            registers[3] = 3;
-            temp = "221820";
+            // temp = temp.substr(2);
+
             int32_t num;
             istringstream(temp) >> hex >> num;
             struct Type tempCommand;
@@ -157,7 +156,7 @@ int main() {
                 tempCommand.op_code = 0;
                 tempCommand = buildR(num);
             } else {
-                tempCommand.op_code = (num & 4227858432);
+                tempCommand.op_code = ((num >> 26) & 63);
                 tempCommand = buildI(num);
             }
             commands.push(tempCommand);
@@ -170,11 +169,11 @@ int main() {
         if (tempCom.op_code == 0) {
             rInstructions[tempCom.r.func](registers[tempCom.r.rs], registers[tempCom.r.rt], registers[tempCom.r.rd], tempCom.r.shamt);
         } else {
-            iInstructions[tempCom.op_code](registers[tempCom.i.rt], registers[tempCom.i.rs], tempCom.i.imm);
+            
+            iInstructions[tempCom.op_code](registers[tempCom.i.rs], registers[tempCom.i.rt], tempCom.i.imm);
         }
     }
-    // current status: works with hex code "221820"
-    cout << registers[1] << endl;
+    // current status: works with hex code "221820" and "20220003"
 
     return 0;
 }
