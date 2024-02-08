@@ -18,7 +18,7 @@ struct Type {
         int32_t rs, rt, rd, shamt, func;
 
         void print() {
-            cout << rs << " " << rt << " " << rd << " " << shamt << " " <<  func << endl;
+            cout << rd << " " << rs << " " << rt << " " << shamt << " " <<  func << endl;
         }
     }; 
 
@@ -27,7 +27,7 @@ struct Type {
         int16_t imm;
 
         void print() {
-            cout << rs << " " << rt << " " << imm << endl;
+            cout << rt << " " << rs << " " << imm << endl;
         }
     };
     
@@ -48,8 +48,8 @@ Type buildR(int32_t& input) {
 Type buildI(int32_t& input) {
     struct Type fin;
     fin.op_code = ((input >> 26) & 63);
-    fin.i.rs = (input >> 21) & 31;
-    fin.i.rt = (input >> 16) & 31;
+    fin.i.rt = (input >> 21) & 31;
+    fin.i.rs = (input >> 16) & 31;
     fin.i.imm = input & 65535;
     return fin;
 }
@@ -149,9 +149,14 @@ int main() {
     string line;
     int32_t num;
     ifstream instructionsFile("instructions.txt");
+    int counter = 0;
+    int numInstructionsToRun;
+
+    cout << "Number of Instructions to Run: ";
+    cin >> numInstructionsToRun;
 
     if (instructionsFile.is_open()) {
-        while (getline(instructionsFile, line)) {
+        while (counter < numInstructionsToRun && getline(instructionsFile, line)) {
             cout << "Instruction: " << line << '\n';
 
             line = line.substr(2, 8);
@@ -170,11 +175,12 @@ int main() {
             
             // I Type
             else {
-                tempCommand.op_code = (num & 4227858432);
+                tempCommand.op_code = ((num >> 26) & 63);
                 tempCommand = buildI(num);
             }
 
             commands.push(tempCommand);
+            counter++;
         }
 
         instructionsFile.close();
@@ -186,14 +192,20 @@ int main() {
     while (!commands.empty()) {
         struct Type tempCom = commands.front();
         commands.pop();
+
         if (tempCom.op_code == 0) {
-            rInstructions[tempCom.r.func](registers[tempCom.r.rs], registers[tempCom.r.rt], registers[tempCom.r.rd], tempCom.r.shamt);
+            rInstructions[tempCom.r.func](registers[tempCom.r.rd], registers[tempCom.r.rs], registers[tempCom.r.rt], tempCom.r.shamt);
         } else {
-            
-            iInstructions[tempCom.op_code](registers[tempCom.i.rs], registers[tempCom.i.rt], tempCom.i.imm);
+            iInstructions[tempCom.op_code](registers[tempCom.i.rt], registers[tempCom.i.rs], tempCom.i.imm);
         }
     }
     // current status: works with hex code "221820" and "20220003"
+
+    cout << "Register 1: " << registers[1] << endl;
+    cout << "Register 2: " << registers[2] << endl;
+    cout << "Register 3: " << registers[3] << endl;
+    cout << "Register 4: " << registers[4] << endl;
+    cout << "Register 5: " << registers[5] << endl;
 
     return 0;
 }

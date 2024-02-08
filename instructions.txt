@@ -7,25 +7,3 @@
 
 0x00222020 # load register 4 with register 1 + register 2
 0x00612820 # load register 5 with register 3 + register 1
-
-#addiu
-
-#sub
-
-#addu
-
-#andCom
-
-#orCom
-
-#nor
-
-#sll
-
-#srl
-
-#subu
-
-#addiu
-
-#sra
