@@ -116,12 +116,22 @@ void subu(uint32_t& rd, uint32_t rs, uint32_t rt, int32_t shamt) {
 }
 
 void addiu(uint32_t& rt, uint32_t rs, uint16_t imm) {
-    // uint32_t immPadded = 
-    rt = rs + imm;
+    uint32_t zeroExtImm = imm;
+    uint32_t oneImm = 4294901760;
+    int firstBit = imm >> 15;
+    uint32_t signExtImm;
+
+    if (firstBit == 1) {
+        signExtImm = oneImm || zeroExtImm;
+    } else {
+        signExtImm = zeroExtImm;
+    }
+
+    rt = rs + signExtImm;
 }
 
 void sra(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
-    
+    rd = rt >> shamt;
 }
 
 void lui(int32_t& rt, int32_t rs, int16_t imm) {
@@ -129,11 +139,13 @@ void lui(int32_t& rt, int32_t rs, int16_t imm) {
 }
 
 void andi(int32_t& rt, int32_t rs, int16_t imm) {
-    // rt = rs & ;
+    uint32_t zeroExtImm = imm;
+    rt = rs && zeroExtImm;
 }
 
 void ori(int32_t& rt, int32_t rs, int16_t imm) {
-    // rt = rs & ;
+    uint32_t zeroExtImm = imm;
+    rt = rs || zeroExtImm;
 }
 
 void j() {
