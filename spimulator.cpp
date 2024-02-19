@@ -2,13 +2,14 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <map>
 #include <fstream>
 #include <string>
 
 using namespace std;
 
 map<int32_t, int> memory;
-int sp = 0, ra = 0;
+int32_t registers[32];
 
 struct Type { 
     int op_code;
@@ -35,6 +36,7 @@ struct Type {
 
     struct J {
         int32_t address;
+
         void print() {
             cout << address << endl;
         }
@@ -57,16 +59,14 @@ Type buildR(int32_t& input) {
 
 Type buildI(int32_t& input) {
     struct Type fin;
-    fin.op_code = ((input >> 26) & 63);
-    fin.i.rt = (input >> 21) & 31;
-    fin.i.rs = (input >> 16) & 31;
+    fin.i.rs = (input >> 21) & 31;
+    fin.i.rt = (input >> 16) & 31;
     fin.i.imm = input & 65535;
     return fin;
 }
 
 Type buildJ(int32_t& input, int index) {
     struct Type fin;
-    fin.op_code = ((input >> 26) & 63);
     fin.j.address = input & 67108863;
     memory[fin.j.address] = index;
     return fin;
@@ -150,20 +150,16 @@ void ori(int32_t& rt, int32_t rs, int16_t imm) {
 }
 
 void j(int32_t address) {
-    sp = memory[address];
+    registers[29] = memory[address];
 }
 
 void jal(int32_t address) {
-    ra = sp;
-    sp = memory[address];
+    registers[31] = registers[29];
+    registers[29] = memory[address];
 }
 
-void jr() {
-    sp = ra + 1;
-}
-
-void exit(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
-    sp = -2;
+void jr(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    registers[29] = rs;
 }
 
 int main() {
@@ -172,6 +168,10 @@ int main() {
     typedef void (*rfunctions)(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt);
     typedef void (*ifunctions)(int32_t& rt, int32_t rs, int16_t imm);
     typedef void (*jfunctions)(int32_t imm);
+    registers[0] = 0;
+    registers[29] = 0; // sp
+    registers[31] = 0; // ra
+
 
     map<int32_t, rfunctions> rInstructions; 
     rInstructions[32] = &add;
@@ -182,7 +182,7 @@ int main() {
     rInstructions[3] = &sra;
     rInstructions[2] = &srl;
     rInstructions[34] = &sub;
-    rInstructions[1] = &exit;
+    rInstructions[8] = &jr;
 
     map<int32_t, ifunctions> iInstructions;
     iInstructions[8] = &addi;
@@ -194,52 +194,57 @@ int main() {
     map<int32_t, jfunctions> jInstructions;
     jInstructions[2] = &j;
     jInstructions[3] = &jal;
-    
-    int32_t registers[26];
-    registers[0] = 0;
 
     string line;
     int32_t num;
-    ifstream instructionsFile("jInstructions.txt");
+    ifstream instructionsFile("instructions.txt");
     int counter = 0;
-    int numInstructionsToRun;
-
-    cout << "Number of Instructions to Run: ";
-    cin >> numInstructionsToRun;
 
     if (instructionsFile.is_open()) {
-        while (counter < numInstructionsToRun && getline(instructionsFile, line)) {
-            cout << "Instruction: " << line << '\n';
+        while (getline(instructionsFile, line)) {
+            
 
             line = line.substr(2, 8);
 
             istringstream(line) >> hex >> num;
 
-            cout << "Line: " << line << ", Number: " << num << '\n';
+            // cout << "Line: " << line << ", Number: " << num << '\n';
 
             struct Type tempCommand;
 
-            if ((num & 4227858432) == 0) {  // R Type
+            if ((num & 0xFC000000) == 0) {
+                // R Type
+                Type tempCommand = buildR(num);
                 tempCommand.op_code = 0;
-                tempCommand = buildR(num);
-            }  else if (((num & 4227858432) == 2) || ((num & 4227858432) == 3)) {  // J Type
-                tempCommand = buildJ(num, counter);
-            }  else {  // I Type
-                tempCommand.op_code = ((num >> 26) & 63);
-                tempCommand = buildI(num);
+                commands.push_back(tempCommand);
+                counter++;
+            } else if (((num & 0xFC000000) >> 26) == 2 || ((num & 0xFC000000) >> 26) == 3) {
+                // J Type
+                Type tempCommand = buildJ(num, counter);
+                tempCommand.op_code = (num & 0xFC000000) >> 26;
+                commands.push_back(tempCommand);
+                counter++;
+            } else if ((num & 0xFC000000) == 0x04000000) {
+                // Label
+                memory[num & 0x03FFFFFF] = counter-1;
+            } else {
+                // I Type
+                Type tempCommand = buildI(num);
+                tempCommand.op_code = (num & 0xFC000000) >> 26;
+                commands.push_back(tempCommand);
+                counter++;
             }
 
-            commands.push_back(tempCommand);
-            counter++;
+
         }
         instructionsFile.close();
     } else {
         cout << "Unable to open file." << endl;
     }
 
-    while (sp >= 0) {
-        struct Type tempCom = commands[sp];
-
+    counter = 0;
+    while (registers[29] >= 0) {
+        struct Type tempCom = commands[registers[29]];
         if (tempCom.op_code == 0) {
             rInstructions[tempCom.r.func](registers[tempCom.r.rd], registers[tempCom.r.rs], registers[tempCom.r.rt], tempCom.r.shamt);
         } else if (tempCom.op_code == 2 || tempCom.op_code == 3) {
@@ -247,18 +252,15 @@ int main() {
         } else {
             iInstructions[tempCom.op_code](registers[tempCom.i.rt], registers[tempCom.i.rs], tempCom.i.imm);
         }
-
-        cout << "Registers: " << registers[4] << ", " << registers[5] << endl;
-
-        sp++;
+        registers[29]++;
+        counter++;
     }
-    // current status: works with hex code "221820" and "20220003"
 
-    cout << "Register $zero: " << registers[0] << endl;
-    cout << "Register $a0: " << registers[4] << endl;
-    cout << "Register $a1: " << registers[5] << endl;
-    cout << "Register $v0: " << registers[2] << endl;
-    cout << "Register $t0: " << registers[8] << endl;
+    cout << "Register 1: " << registers[1] << endl;
+    cout << "Register 2: " << registers[2] << endl;
+    cout << "Register 3: " << registers[3] << endl;
+    cout << "Register 4: " << registers[4] << endl;
+    cout << "Register 5: " << registers[5] << endl;
 
     return 0;
 }
