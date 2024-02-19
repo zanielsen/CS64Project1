@@ -8,6 +8,7 @@ main:
     jal function
     addi $t0, $zero, 2
     add $v0, $v0, $t0
+    addi $sp, $zero, -2 # exit command
 
 function:
     add $v0, $a0, $a1
