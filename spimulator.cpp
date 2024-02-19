@@ -69,6 +69,7 @@ Type buildJ(int32_t& input, int index) {
     fin.op_code = ((input >> 26) & 63);
     fin.j.address = input & 67108863;
     memory[fin.j.address] = index;
+    return fin;
 }
 
 void add(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
@@ -157,6 +158,14 @@ void jal(int32_t address) {
     sp = memory[address];
 }
 
+void jr() {
+    sp = ra + 1;
+}
+
+void exit(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    sp = -2;
+}
+
 int main() {
     vector<Type> commands;
     string temp;
@@ -173,6 +182,7 @@ int main() {
     rInstructions[3] = &sra;
     rInstructions[2] = &srl;
     rInstructions[34] = &sub;
+    rInstructions[1] = &exit;
 
     map<int32_t, ifunctions> iInstructions;
     iInstructions[8] = &addi;
@@ -190,7 +200,7 @@ int main() {
 
     string line;
     int32_t num;
-    ifstream instructionsFile("instructions.txt");
+    ifstream instructionsFile("jInstructions.txt");
     int counter = 0;
     int numInstructionsToRun;
 
@@ -209,11 +219,10 @@ int main() {
 
             struct Type tempCommand;
 
-            // R Type
-            if ((num & 4227858432) == 0) {
+            if ((num & 4227858432) == 0) {  // R Type
                 tempCommand.op_code = 0;
                 tempCommand = buildR(num);
-            }  else if ((num & 4227858432 == 2) || (num & 4227858432 == 3)) { // J Type
+            }  else if (((num & 4227858432) == 2) || ((num & 4227858432) == 3)) {  // J Type
                 tempCommand = buildJ(num, counter);
             }  else {  // I Type
                 tempCommand.op_code = ((num >> 26) & 63);
@@ -238,15 +247,18 @@ int main() {
         } else {
             iInstructions[tempCom.op_code](registers[tempCom.i.rt], registers[tempCom.i.rs], tempCom.i.imm);
         }
+
+        cout << "Registers: " << registers[4] << ", " << registers[5] << endl;
+
         sp++;
     }
     // current status: works with hex code "221820" and "20220003"
 
-    cout << "Register 1: " << registers[1] << endl;
-    cout << "Register 2: " << registers[2] << endl;
-    cout << "Register 3: " << registers[3] << endl;
-    cout << "Register 4: " << registers[4] << endl;
-    cout << "Register 5: " << registers[5] << endl;
+    cout << "Register $zero: " << registers[0] << endl;
+    cout << "Register $a0: " << registers[4] << endl;
+    cout << "Register $a1: " << registers[5] << endl;
+    cout << "Register $v0: " << registers[2] << endl;
+    cout << "Register $t0: " << registers[8] << endl;
 
     return 0;
 }
