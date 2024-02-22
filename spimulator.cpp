@@ -122,7 +122,7 @@ void addiu(uint32_t& rt, uint32_t rs, uint16_t imm) {
     uint32_t signExtImm;
 
     if (firstBit == 1) {
-        signExtImm = oneImm || zeroExtImm;
+        signExtImm = oneImm | zeroExtImm;
     } else {
         signExtImm = zeroExtImm;
     }
@@ -140,12 +140,12 @@ void lui(int32_t& rt, int32_t rs, int16_t imm) {
 
 void andi(int32_t& rt, int32_t rs, int16_t imm) {
     uint32_t zeroExtImm = imm;
-    rt = rs && zeroExtImm;
+    rt = rs & zeroExtImm;
 }
 
 void ori(int32_t& rt, int32_t rs, int16_t imm) {
     uint32_t zeroExtImm = imm;
-    rt = rs || zeroExtImm;
+    rt = rs | zeroExtImm;
 }
 
 void j(int32_t address) {
@@ -187,7 +187,6 @@ void beq(int32_t& rt, int32_t rs, int16_t imm) {
 
 int main() {
     vector<Type> commands;
-    string temp;
     typedef void (*rfunctions)(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt);
     typedef void (*ifunctions)(int32_t& rt, int32_t rs, int16_t imm);
     typedef void (*jfunctions)(int32_t imm);
@@ -234,13 +233,13 @@ int main() {
 
             if ((num & 0xFC000000) == 0) {
                 // R Type
-                Type tempCommand = buildR(num);
+                tempCommand = buildR(num);
                 tempCommand.op_code = 0;
                 commands.push_back(tempCommand);
                 counter++;
             } else if (((num & 0xFC000000) >> 26) == 2 || ((num & 0xFC000000) >> 26) == 3) {
                 // J Type
-                Type tempCommand = buildJ(num, counter);
+                tempCommand = buildJ(num, counter);
                 tempCommand.op_code = (num & 0xFC000000) >> 26;
                 commands.push_back(tempCommand);
                 counter++;
@@ -249,7 +248,7 @@ int main() {
                 memory[num & 0x03FFFFFF] = counter-1;
             } else {
                 // I Type
-                Type tempCommand = buildI(num);
+                tempCommand = buildI(num);
                 tempCommand.op_code = (num & 0xFC000000) >> 26;
                 commands.push_back(tempCommand);
                 counter++;
