@@ -146,7 +146,7 @@ void andi(int32_t& rt, int32_t rs, int16_t imm) {
 
 void ori(int32_t& rt, int32_t rs, int16_t imm) {
     uint32_t zeroExtImm = imm;
-    rt = rs || zeroExtImm;
+    rt = rs | zeroExtImm;
 }
 
 void j(int32_t address) {
