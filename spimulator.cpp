@@ -7,7 +7,7 @@
 
 using namespace std;
 
-map<int32_t, int> memory;
+map<int16_t, int> memory;
 int32_t registers[32];
 
 struct Type { 
@@ -34,7 +34,7 @@ struct Type {
     };
 
     struct J {
-        int32_t address;
+        int16_t address;
 
         void print() {
             cout << address << endl;
@@ -148,11 +148,11 @@ void ori(int32_t& rt, int32_t rs, int16_t imm) {
     rt = rs | zeroExtImm;
 }
 
-void j(int32_t address) {
+void j(int16_t address) {
     registers[29] = memory[address];
 }
 
-void jal(int32_t address) {
+void jal(int16_t address) {
     registers[31] = registers[29];
     registers[29] = memory[address];
 }
@@ -162,34 +162,48 @@ void jr(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
 }
 
 void slt(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
-    
+    rd = rs < rt;
 }
 
 void sltu(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
-    
+    rd = rs < rt;
 }
 
 void slti(int32_t& rt, int32_t rs, int16_t imm) {
-    
+    uint32_t zeroExtImm = imm;
+    rt = rs < zeroExtImm;
 }
 
 void sltiu(int32_t& rt, int32_t rs, int16_t imm) {
-    
+    uint32_t zeroExtImm = imm;
+    uint32_t oneImm = 4294901760;
+    int firstBit = imm >> 15;
+    uint32_t signExtImm;
+
+    if (firstBit == 1) {
+        signExtImm = oneImm | zeroExtImm;
+    } else {
+        signExtImm = zeroExtImm;
+    }
+
+    rt = rs < signExtImm;
 }
 
 void bne(int32_t& rt, int32_t rs, int16_t imm) {
-
+    if (rs != rt)
+        j(imm);
 }
 
 void beq(int32_t& rt, int32_t rs, int16_t imm) {
-
+    if (rs == rt)
+        j(imm);
 }
 
 int main() {
     vector<Type> commands;
     typedef void (*rfunctions)(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt);
     typedef void (*ifunctions)(int32_t& rt, int32_t rs, int16_t imm);
-    typedef void (*jfunctions)(int32_t imm);
+    typedef void (*jfunctions)(int16_t imm);
     registers[0] = 0;
     registers[29] = 0; // sp
     registers[31] = 0; // ra
@@ -245,7 +259,7 @@ int main() {
                 counter++;
             } else if ((num & 0xFC000000) == 0x04000000) {
                 // Label
-                memory[num & 0x03FFFFFF] = counter-1;
+                memory[num & 0x0000FFFF] = counter-1;
             } else {
                 // I Type
                 tempCommand = buildI(num);
@@ -253,8 +267,7 @@ int main() {
                 commands.push_back(tempCommand);
                 counter++;
             }
-
-
+            
         }
         instructionsFile.close();
     } else {
@@ -275,11 +288,11 @@ int main() {
         counter++;
     }
 
-    cout << "Register 1: " << registers[1] << endl;
-    cout << "Register 2: " << registers[2] << endl;
-    cout << "Register 3: " << registers[3] << endl;
-    cout << "Register 4: " << registers[4] << endl;
-    cout << "Register 5: " << registers[5] << endl;
+    cout << "Register $zero: " << registers[0] << endl;
+    cout << "Register $a0: " << registers[4] << endl;
+    cout << "Register $a1: " << registers[5] << endl;
+    cout << "Register $v0: " << registers[2] << endl;
+    cout << "Register $t0: " << registers[8] << endl;
 
     return 0;
 }
