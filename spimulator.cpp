@@ -2,7 +2,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include <map>
 #include <fstream>
 #include <string>
 
@@ -162,6 +161,30 @@ void jr(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
     registers[29] = rs;
 }
 
+void slt(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    
+}
+
+void sltu(int32_t& rd, int32_t rs, int32_t rt, int32_t shamt) {
+    
+}
+
+void slti(int32_t& rt, int32_t rs, int16_t imm) {
+    
+}
+
+void sltiu(int32_t& rt, int32_t rs, int16_t imm) {
+    
+}
+
+void bne(int32_t& rt, int32_t rs, int16_t imm) {
+
+}
+
+void beq(int32_t& rt, int32_t rs, int16_t imm) {
+
+}
+
 int main() {
     vector<Type> commands;
     string temp;
@@ -203,12 +226,9 @@ int main() {
     if (instructionsFile.is_open()) {
         while (getline(instructionsFile, line)) {
             
-
             line = line.substr(2, 8);
 
             istringstream(line) >> hex >> num;
-
-            // cout << "Line: " << line << ", Number: " << num << '\n';
 
             struct Type tempCommand;
 
