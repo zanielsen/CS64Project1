@@ -1,0 +1,20 @@
+0x21000003 # addi $t0, $zero, 3
+0x21200002 # addi $t1, $zero, 2
+0x21400001 # addi $t2, $zero, 1
+0x200BFFFF # addi $t3, $zero, 65535
+0x20180001 # addi $t8, $zero, -65535
+0x01606025
+0x01606827
+0x00097080
+0x00097842
+0x0178C823
+0x000BC883
+0x3C10AC51
+0x31110001
+0x35120007
+
+
+void ori(int32_t& rt, int32_t rs, int16_t imm) {
+    uint32_t zeroExtImm = imm;
+    rt = rs || zeroExtImm;
+}
