@@ -1,6 +1,6 @@
 # MIPS Assembly Simulator
 
-This program simulates the execution of MIPS assembly instructions. It reads instructions from a file named `instructions.txt` and executes them sequentially. The simulator supports R-type, I-type, and J-type instructions.
+This program simulates the execution of MIPS assembly instructions. It reads instructions from a file named `instructions.txt` and executes them sequentially. The simulator supports R-type, I-type, and J-type instructions. The file containing the final code is `spimulator.cpp`.
 
 ## Instructions
 
