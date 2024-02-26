@@ -226,6 +226,8 @@ int main() {
     iInstructions[15] = &lui;
     iInstructions[12] = &andi;
     iInstructions[13] = &ori;
+    iInstructions[4] = &beq;
+    iInstructions[5] = &bne;
 
     map<int32_t, jfunctions> jInstructions;
     jInstructions[2] = &j;
