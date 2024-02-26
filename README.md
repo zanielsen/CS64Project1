@@ -8,7 +8,7 @@ This program simulates the execution of MIPS assembly instructions. It reads ins
   - Supported instructions: `add`, `sub`, `addu`, `and`, `or`, `nor`, `sll`, `srl`, `sra`, `jr`
   - Syntax: `OP rd, rs, rt, shamt`
 - I-Type Instructions:
-  - Supported instructions: `addi`, `addiu`, `andi`, `ori`, `lui`
+  - Supported instructions: `addi`, `addiu`, `andi`, `ori`, `lui` (`beq`, `bne` untested but implemented)
   - Syntax: `OP rt, rs, immediate`
 - J-Type Instructions:
   - Supported instructions: `j`, `jal`
